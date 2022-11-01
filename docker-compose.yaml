@@ -1,0 +1,45 @@
+version: '3'
+
+services: 
+  rabbit:
+    image: rabbitmq:3.8.1-management
+    container_name: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    expose:
+      - "5672"
+      - "15672"
+    restart: always 
+
+  messenger:
+    image: messenger
+    build:
+      context: ./messenger
+      dockerfile: Dockerfile
+    container_name: messenger
+    environment:
+      - RABBIT=amqp://guest:guest@localhost:5672
+    volumes:
+      - /Users/clement/Downloads/test:/src
+    depends_on:
+      - rabbit
+    restart: "no"
+    stdin_open: true 
+    tty: true 
+
+  reveriver:
+    image: reveiver
+    build:
+      context: ./receiver
+      dockerfile: Dockerfile
+    container_name: reveriver
+    environment:
+      - RABBIT=amqp://guest:guest@localhost:5672
+    volumes:
+      - /Users/clement/Downloads/test:/src
+    depends_on:
+      - rabbit
+    restart: "no"
+    stdin_open: true 
+    tty: true       
